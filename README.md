@@ -1,4 +1,4 @@
-# DevOps-Project
+# DevOps- Project
 This project uses an Employee Management System built on SpringBoot as the base project to be integrated with DevOps tool. 
 
 # Database 
