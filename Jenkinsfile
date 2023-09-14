@@ -17,13 +17,7 @@ pipeline {
                 sh 'mvn clean package'
             }
         }
-        stage('Scan') {
-            steps {
-                withSonarQubeEnv(installationName: 'sonar-server') { 
-                sh 'mvn sonar:sonar'
-                }
-            }
-        }
+
         stage('Image Build') {
             steps {
                 sh "docker build -t mahalakshminair/devops:latest ."
@@ -42,7 +36,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh "docker run -p 8080:8080 -d mahalakshminair/devops:latest"
+                    sh "docker run -p 8000:8080 -d mahalakshminair/devops:latest"
                 }
             }
         }
