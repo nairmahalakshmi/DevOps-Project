@@ -19,7 +19,8 @@ The application uses a database implemented using PostgreSQL.
 
 # Jenkins Pipeline
 A Jenkins pipeline was created for CI/CD automation consisting of the following steps:
-1) Source Code Management: Jenkins was connected to Git to clone the repository.
-2) Build and Packaging: Maven is used as the build tool to build and package the application into a .jar file.
-3) Containerization: Docker image of the application is build and pushed to DockerHub.
-4) Deployment: Dockerized application is deployed to Tomcat server.
+1) Git Checkout: Jenkins was connected to Source Code Management tool, Git, to clone the repository.
+2) Maven Build: Maven is used as the build tool to build and package the application into a .jar file.
+3) Sonar Scan: SonarQube was integrated to the pipeline to perform code analysis.
+4) Docker Build: Docker image of the application is build and pushed to DockerHub.
+5) Deploy to Kubernetes: Dockerized application is deployed to the pods using Kubernetes plugins.
