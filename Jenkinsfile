@@ -1,15 +1,14 @@
 pipeline {
-    agent any
-    tools {
-        maven "Maven3"
+    agent {
+        label 'agent1'
     }
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+    tools {
+        maven "MAVEN_HOME"
     }
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/nairmahalakshmi/DevOps-Project.git'
+                git branch: 'main', credentialsId: 'githubcredentials', url: 'https://github.com/j-rin/java_sql.git'
             }
         }
         stage('Maven Build') {
@@ -17,28 +16,36 @@ pipeline {
                 sh 'mvn clean package'
             }
         }
-
-        stage('Image Build') {
+        stage('Scan') {
             steps {
-                sh "docker build -t mahalakshminair/devops:latest ."
-            }
-        }
-        stage('Login to DockerHub'){
-            steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-            }
-        }
-        stage('Push Image') {
-            steps {
-                sh "docker push mahalakshminair/devops:latest"
-            }
-        }
-        stage('Deploy') {
-            steps {
-                script {
-                    sh "docker run -p 8000:8080 -d mahalakshminair/devops:latest"
+                withSonarQubeEnv(installationName: 'sonar-server') { 
+                sh 'mvn sonar:sonar'
                 }
             }
         }
-    }
+        stage('Image Build') {
+            steps {
+                script{
+                sh "whoami"
+                sh "docker build -t jerinpaul/jenkins-app:latest ."
+                }
+            }
+        }
+        stage('push to dockerhub') {
+            steps {
+                script{
+                sh "docker login"
+                sh "docker push jerinpaul/jenkins-app:latest"
+                }
+            }
+        }
+        stage('Deploying to K8s') {
+            steps {
+                withKubeConfig([credentialsId: 'kubernetescredentials', serverUrl: 'https://77CA947B7DE0FEE8F24A92959D3C387F.gr7.ap-south-1.eks.amazonaws.com']) {
+                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl get pods'
+                }
+            }
+        } 
+    }      
 }
